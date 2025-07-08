@@ -3,13 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params; 
+  
   try {
     const body = await req.json();
     const { title, content } = body;
 
-    const updatedNote = updateNote(params.id, { title, content });
+    const updatedNote = updateNote(id, { title, content });
 
     if (!updatedNote) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
@@ -27,10 +29,11 @@ export async function PUT(
 
 export async function DELETE(
   _: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
-    const deleted = delelteNote(params.id);
+    const deleted = delelteNote(id);
 
     if (!deleted) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });

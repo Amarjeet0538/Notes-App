@@ -1,8 +1,8 @@
 "use client";
-
 import Header from "@/components/header";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 
 export default function DogPage() {
   const [dogUrl, setDogUrl] = useState<string[]>([]);
@@ -10,18 +10,16 @@ export default function DogPage() {
   const [breedName, setBreedName] = useState("");
   const router = useRouter();
 
-  useEffect(() => {
-    generateImage(noOfPics);
-  }, []);
-
-  const generateImage = async (count: number) => {
+  const generateImage = useCallback(async (count: number) => {
     const res = await fetch(`https://dog.ceo/api/breeds/image/random/${count}`);
     const data = await res.json();
-
     const urls = Array.isArray(data.message) ? data.message : [data.message];
-
     setDogUrl(urls);
-  };
+  }, []);
+
+  useEffect(() => {
+    generateImage(noOfPics);
+  }, [noOfPics, generateImage]);
 
   const handleBreed = () => {
     const trimmed = breedName.trim().toLowerCase();
@@ -42,7 +40,6 @@ export default function DogPage() {
         heading="Random Dog image"
         buttonText="Generate"
       />
-
       <main className="flex flex-col min-h-full items-center">
         <form className=" m-10 gap-2">
           <input
@@ -62,15 +59,36 @@ export default function DogPage() {
           />
         </form>
 
-        {dogUrl.map((url, i) => (
+        {/* {dogUrl.map((url, i) => (
           <img
             key={i}
             src={url}
             alt={`Dog ${i + 1}`}
             className="rounded-xl max-w-sm shadow-lg my-2"
           />
+        ))}*/}
+        {dogUrl.map((url, i) => (
+          <Image
+            key={i}
+            src={url}
+            alt={`Dog ${i + 1}`}
+            width={400}
+            height={400}
+            className="rounded-xl max-w-sm shadow-lg my-2"
+            style={{ objectFit: "cover" }}
+          />
         ))}
       </main>
     </div>
   );
 }
+
+// useEffect(() => {
+//   generateImage(noOfPics);
+// }, []);
+// const generateImage = async (count: number) => {
+//   const res = await fetch(`https://dog.ceo/api/breeds/image/random/${count}`);
+//   const data = await res.json();
+//   const urls = Array.isArray(data.message) ? data.message : [data.message];
+//   setDogUrl(urls);
+// };
